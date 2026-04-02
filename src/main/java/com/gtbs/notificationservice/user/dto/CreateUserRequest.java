@@ -15,11 +15,6 @@ public class CreateUserRequest {
     @Email(message = "email must be valid")
     private String email;
 
-    private String phoneNumber;
-
-    @NotBlank(message = "preferredChannel is required")
-    private String preferredChannel;
-
     public CreateUserRequest() {
     }
 
@@ -35,14 +30,6 @@ public class CreateUserRequest {
         return email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getPreferredChannel() {
-        return preferredChannel;
-    }
-
     public void setUserId(String userId) {
         this.userId = userId;
     }
@@ -53,13 +40,5 @@ public class CreateUserRequest {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void setPreferredChannel(String preferredChannel) {
-        this.preferredChannel = preferredChannel;
     }
 }

@@ -13,52 +13,50 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NotificationLogService {
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationLogService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationLogService.class);
 
     private final NotificationLogRepository notificationLogRepository;
     private final UserProfileRepository userProfileRepository;
 
     public NotificationLogService(NotificationLogRepository notificationLogRepository,
-            UserProfileRepository userProfileRepository) {
+                                 UserProfileRepository userProfileRepository) {
         this.notificationLogRepository = notificationLogRepository;
         this.userProfileRepository = userProfileRepository;
     }
 
     public void processBookingEvent(BookingEvent event) {
-        UserProfile user = userProfileRepository.findByUserId(event.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + event.getUserId()));
+        UserProfile user = userProfileRepository.findByUserId(event.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + event.userId()));
 
-        log.info("Sending EMAIL notification to {} for booking {} with status {}",
-                user.getEmail(), event.getBookingId(), event.getStatus());
+        logger.info("Sending EMAIL notification to {} for booking {} with status {}",
+                user.getEmail(), event.bookingId(), event.status());
 
         NotificationLog notificationLog = new NotificationLog();
-        notificationLog.setUserId(event.getUserId());
-        notificationLog.setBookingId(event.getBookingId());
-        notificationLog.setStatus(event.getStatus());
-        notificationLog.setMessage(event.getMessage());
+        notificationLog.setUserId(event.userId());
+        notificationLog.setBookingId(event.bookingId());
+        notificationLog.setStatus(event.status());
+        notificationLog.setMessage(event.message());
         notificationLog.setChannel("EMAIL");
-        notificationLog.setSentAt(LocalDateTime.now());
 
         notificationLogRepository.save(notificationLog);
 
-        log.info("Notification saved for user {}", event.getUserId());
+        logger.info("Notification saved for user {}", event.userId());
     }
 
     public List<NotificationLogResponse> getNotificationsForUser(String userId) {
         return notificationLogRepository.findByUserId(userId)
                 .stream()
-                .map(log2 -> new NotificationLogResponse(
-                        log2.getId(),
-                        log2.getUserId(),
-                        log2.getBookingId(),
-                        log2.getStatus(),
-                        log2.getMessage(),
-                        log2.getSentAt()))
-                .collect(Collectors.toList());
+                .map(entry -> new NotificationLogResponse(
+                        entry.getId(),
+                        entry.getUserId(),
+                        entry.getBookingId(),
+                        entry.getStatus(),
+                        entry.getMessage(),
+                        entry.getSentAt()))
+                .toList();
     }
 }

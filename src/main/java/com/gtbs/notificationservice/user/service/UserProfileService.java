@@ -1,5 +1,6 @@
 package com.gtbs.notificationservice.user.service;
 
+import com.gtbs.notificationservice.common.exception.ResourceNotFoundException;
 import com.gtbs.notificationservice.user.dto.CreateUserRequest;
 import com.gtbs.notificationservice.user.dto.UserProfileResponse;
 import com.gtbs.notificationservice.user.entity.UserProfile;
@@ -20,17 +21,13 @@ public class UserProfileService {
         profile.setUserId(request.getUserId());
         profile.setFullName(request.getFullName());
         profile.setEmail(request.getEmail());
-        profile.setPhoneNumber(request.getPhoneNumber());
-        profile.setPreferredChannel(request.getPreferredChannel());
 
-        UserProfile saved = userProfileRepository.save(profile);
-        return toResponse(saved);
+        return toResponse(userProfileRepository.save(profile));
     }
 
     public UserProfileResponse getUserByUserId(String userId) {
-        UserProfile profile = userProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-        return toResponse(profile);
+        return toResponse(userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId)));
     }
 
     private UserProfileResponse toResponse(UserProfile profile) {
@@ -38,8 +35,6 @@ public class UserProfileService {
                 profile.getId(),
                 profile.getUserId(),
                 profile.getFullName(),
-                profile.getEmail(),
-                profile.getPhoneNumber(),
-                profile.getPreferredChannel());
+                profile.getEmail());
     }
 }

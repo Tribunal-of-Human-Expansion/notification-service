@@ -20,6 +20,8 @@ public class NotificationLogController {
     @GetMapping("/{userId}")
     public ResponseEntity<List<NotificationLogResponse>> getNotifications(@PathVariable String userId) {
         List<NotificationLogResponse> notifications = notificationLogService.getNotificationsForUser(userId);
-        return ResponseEntity.ok(notifications);
+        return notifications.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(notifications);
     }
 }
