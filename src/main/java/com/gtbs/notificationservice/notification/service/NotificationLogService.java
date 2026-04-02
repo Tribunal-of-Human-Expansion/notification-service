@@ -29,17 +29,18 @@ public class NotificationLogService {
         }
 
         public void processBookingEvent(BookingEvent event) {
-                UserProfile user = userProfileRepository.findByUserId(event.userId()) // ← not getUserId()
+                UserProfile user = userProfileRepository.findByUserId(event.userId())
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + event.userId()));
 
                 logger.info("Sending EMAIL notification to {} for booking {} with status {}",
-                                user.getEmail(), event.bookingId(), event.status()); // ← no get prefix
+                                user.getEmail(), event.bookingId(), event.status());
 
                 NotificationLog notificationLog = new NotificationLog();
                 notificationLog.setUserId(event.userId());
                 notificationLog.setBookingId(event.bookingId());
                 notificationLog.setStatus(event.status());
-                notificationLog.setMessage(event.message());
+                notificationLog.setMessage("Booking " + event.bookingId() + " is " + event.status()
+                                + " from " + event.origin() + " to " + event.destination());
                 notificationLog.setChannel("EMAIL");
 
                 notificationLogRepository.save(notificationLog);
