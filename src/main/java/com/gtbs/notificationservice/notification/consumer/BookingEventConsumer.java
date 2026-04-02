@@ -5,12 +5,12 @@ import com.gtbs.notificationservice.notification.service.NotificationLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class BookingEventConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger(BookingEventConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(BookingEventConsumer.class);
 
     private final NotificationLogService notificationLogService;
 
@@ -20,7 +20,7 @@ public class BookingEventConsumer {
 
     @KafkaListener(topics = "booking-events-v2", groupId = "notification-service-group-v2")
     public void consumeBookingEvent(BookingEvent event) {
-        log.info("Received booking event for userId: {}", event.getUserId());
+        logger.info("Received booking event for userId: {}", event.userId());
         notificationLogService.processBookingEvent(event);
     }
 }

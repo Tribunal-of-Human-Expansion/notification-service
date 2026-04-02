@@ -1,6 +1,7 @@
 package com.gtbs.notificationservice.notification.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -27,20 +28,11 @@ public class NotificationLog {
     @Column(nullable = false)
     private String message;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime sentAt;
 
     public NotificationLog() {
-    }
-
-    public NotificationLog(Long id, String bookingId, String userId, String status, String channel, String message, LocalDateTime sentAt) {
-        this.id = id;
-        this.bookingId = bookingId;
-        this.userId = userId;
-        this.status = status;
-        this.channel = channel;
-        this.message = message;
-        this.sentAt = sentAt;
     }
 
     public Long getId() {
@@ -71,10 +63,6 @@ public class NotificationLog {
         return sentAt;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public void setBookingId(String bookingId) {
         this.bookingId = bookingId;
     }
@@ -93,9 +81,5 @@ public class NotificationLog {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
     }
 }

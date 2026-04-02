@@ -20,13 +20,11 @@ public class UserProfileController {
 
     @PostMapping
     public ResponseEntity<UserProfileResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        UserProfileResponse response = userProfileService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userProfileService.createUser(request));
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserProfileResponse> getUserByUserId(@PathVariable String userId) {
-        UserProfileResponse response = userProfileService.getUserByUserId(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userProfileService.getUserByUserId(userId));
     }
 }
