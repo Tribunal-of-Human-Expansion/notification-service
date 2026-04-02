@@ -1,7 +1,9 @@
 package com.gtbs.notificationservice.user.controller;
 
-import com.gtbs.notificationservice.user.entity.UserProfile;
-import com.gtbs.notificationservice.user.repository.UserProfileRepository;
+import com.gtbs.notificationservice.user.dto.CreateUserRequest;
+import com.gtbs.notificationservice.user.dto.UserProfileResponse;
+import com.gtbs.notificationservice.user.service.UserProfileService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,22 +12,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserProfileController {
 
-    private final UserProfileRepository userProfileRepository;
+    private final UserProfileService userProfileService;
 
-    public UserProfileController(UserProfileRepository userProfileRepository) {
-        this.userProfileRepository = userProfileRepository;
+    public UserProfileController(UserProfileService userProfileService) {
+        this.userProfileService = userProfileService;
     }
 
     @PostMapping
-    public ResponseEntity<UserProfile> createUser(@RequestBody UserProfile userProfile) {
-        UserProfile savedUser = userProfileRepository.save(userProfile);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    public ResponseEntity<UserProfileResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserProfileResponse response = userProfileService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserProfile> getUserByUserId(@PathVariable String userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserProfileResponse> getUserByUserId(@PathVariable String userId) {
+        UserProfileResponse response = userProfileService.getUserByUserId(userId);
+        return ResponseEntity.ok(response);
     }
 }
