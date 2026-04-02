@@ -1,8 +1,11 @@
 package com.gtbs.notificationservice.notification.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record BookingEvent(
-        String bookingId,
-        String userId,
-        String status,
-        String message) {
+                @JsonProperty("booking_id") String bookingId,
+                @JsonProperty("user_id") String userId,
+                @JsonProperty("state") String status,
+                @JsonProperty("origin") String origin,
+                @JsonProperty("destination") String destination) {
 }

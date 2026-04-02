@@ -23,23 +23,24 @@ public class NotificationLogService {
     private final UserProfileRepository userProfileRepository;
 
     public NotificationLogService(NotificationLogRepository notificationLogRepository,
-                                 UserProfileRepository userProfileRepository) {
+                                  UserProfileRepository userProfileRepository) {
         this.notificationLogRepository = notificationLogRepository;
         this.userProfileRepository = userProfileRepository;
     }
 
     public void processBookingEvent(BookingEvent event) {
         UserProfile user = userProfileRepository.findByUserId(event.userId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + event.userId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found: " + event.userId()));
 
         logger.info("Sending EMAIL notification to {} for booking {} with status {}",
-                user.getEmail(), event.bookingId(), event.status());
+            user.getEmail(), event.bookingId(), event.status());
 
         NotificationLog notificationLog = new NotificationLog();
         notificationLog.setUserId(event.userId());
         notificationLog.setBookingId(event.bookingId());
         notificationLog.setStatus(event.status());
-        notificationLog.setMessage(event.message());
+        notificationLog.setMessage("Booking " + event.bookingId() + " is " + event.status()
+            + " from " + event.origin() + " to " + event.destination());
         notificationLog.setChannel("EMAIL");
 
         notificationLogRepository.save(notificationLog);
@@ -49,14 +50,14 @@ public class NotificationLogService {
 
     public List<NotificationLogResponse> getNotificationsForUser(String userId) {
         return notificationLogRepository.findByUserId(userId)
-                .stream()
-                .map(entry -> new NotificationLogResponse(
-                        entry.getId(),
-                        entry.getUserId(),
-                        entry.getBookingId(),
-                        entry.getStatus(),
-                        entry.getMessage(),
-                        entry.getSentAt()))
-                .toList();
+            .stream()
+            .map(entry -> new NotificationLogResponse(
+                entry.getId(),
+                entry.getUserId(),
+                entry.getBookingId(),
+                entry.getStatus(),
+                entry.getMessage(),
+                entry.getSentAt()))
+            .toList();
     }
 }
