@@ -29,7 +29,7 @@ services:
       timeout: 10s
       retries: 5
 
-  postgres:
+  booking-postgres:
     image: postgres:16-alpine
     container_name: booking-postgres
     environment:
@@ -42,6 +42,21 @@ services:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U booking -d booking_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notification-postgres:
+    image: postgres:16-alpine
+    container_name: notification-postgres
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2211
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d notification_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -61,7 +76,7 @@ services:
     image: ghcr.io/tribunal-of-human-expansion/journey-compatibility-service:sha-16f665fee8fba5bdfbe2e7e3652e2a6b7719f3fd
     container_name: compatibility-service
     ports:
-      - "8082:8082"
+      - "8082:8082" # ← compatibility-service owns 8082
     depends_on:
       kafka:
         condition: service_healthy
@@ -74,10 +89,12 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-      postgres:
+      booking-postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      journey-compatibility-service:
+        condition: service_started
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
       SPRING_DATASOURCE_URL: jdbc:postgresql://booking-postgres:5432/booking_db
@@ -85,17 +102,24 @@ services:
       SPRING_DATASOURCE_PASSWORD: booking123
       SPRING_DATA_REDIS_HOST: booking-redis
       SPRING_DATA_REDIS_PORT: 6379
+      COMPATIBILITY_SERVICE_URL: http://compatibility-service:8082
 
   notification-service:
     build: .
     container_name: notification-service
     ports:
-      - "8082:8082"
+      - "8084:8084" # ← fixed, was conflicting with 8082
     depends_on:
       kafka:
         condition: service_healthy
+      notification-postgres:
+        condition: service_healthy
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification-postgres:5432/notification_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2211
 
 volumes:
   pgdata:
