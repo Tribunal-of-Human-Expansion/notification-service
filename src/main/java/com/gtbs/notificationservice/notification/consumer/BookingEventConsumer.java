@@ -1,46 +1,26 @@
 package com.gtbs.notificationservice.notification.consumer;
 
 import com.gtbs.notificationservice.notification.dto.BookingEvent;
-import com.gtbs.notificationservice.notification.entity.NotificationLog;
-import com.gtbs.notificationservice.notification.repository.NotificationLogRepository;
-import com.gtbs.notificationservice.user.entity.UserProfile;
-import com.gtbs.notificationservice.user.repository.UserProfileRepository;
+import com.gtbs.notificationservice.notification.service.NotificationLogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class BookingEventConsumer {
 
-    private final UserProfileRepository userProfileRepository;
-    private final NotificationLogRepository notificationLogRepository;
+    private static final Logger log = LoggerFactory.getLogger(BookingEventConsumer.class);
 
-    public BookingEventConsumer(UserProfileRepository userProfileRepository,
-            NotificationLogRepository notificationLogRepository) {
-        this.userProfileRepository = userProfileRepository;
-        this.notificationLogRepository = notificationLogRepository;
+    private final NotificationLogService notificationLogService;
+
+    public BookingEventConsumer(NotificationLogService notificationLogService) {
+        this.notificationLogService = notificationLogService;
     }
 
     @KafkaListener(topics = "booking-events-v2", groupId = "notification-service-group-v2")
     public void consumeBookingEvent(BookingEvent event) {
-        UserProfile userProfile = userProfileRepository.findByUserId(event.getUserId())
-                .orElse(null);
-
-        if (userProfile == null) {
-            return;
-        }
-
-        NotificationLog log = new NotificationLog();
-        log.setBookingId(event.getBookingId());
-        log.setUserId(event.getUserId());
-        log.setStatus(event.getStatus());
-        log.setChannel(userProfile.getPreferredChannel());
-        log.setMessage(event.getMessage());
-        log.setSentAt(LocalDateTime.now());
-
-        notificationLogRepository.save(log);
-
-        System.out.println("Notification prepared for user: " + userProfile.getEmail());
+        log.info("Received booking event for userId: {}", event.getUserId());
+        notificationLogService.processBookingEvent(event);
     }
 }
