@@ -18,7 +18,7 @@ public class BookingEventConsumer {
         this.notificationLogService = notificationLogService;
     }
 
-    @KafkaListener(topics = "booking-events")
+    @KafkaListener(topics = "${booking.kafka.topic:booking-events}")
     public void consumeBookingEvent(BookingEvent event) {
         logger.info("Received booking event for userId: {}", event.userId());
         notificationLogService.processBookingEvent(event);
