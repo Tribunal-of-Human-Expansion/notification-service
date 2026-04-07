@@ -21,7 +21,7 @@ spec:
         app: notification-service
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: notification-service
+      serviceAccountName: booking-service
       imagePullSecrets:
         - name: ghcr-secret
       volumes:
@@ -60,11 +60,11 @@ spec:
                 secretKeyRef:
                   name: notification-service-secrets
                   key: notification_db_password
-            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            - name: notification_kafka_bootstrap_servers
               valueFrom:
                 secretKeyRef:
                   name: notification-service-secrets
-                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+                  key: notification_kafka_bootstrap_servers
           resources:
             requests:
               cpu: "250m"
