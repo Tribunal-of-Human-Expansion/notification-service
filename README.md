@@ -15,7 +15,7 @@ The production app reads these env vars from the pod:
 - `notification_db_url`
 - `notification_db_username`
 - `notification_db_password`
-- `notification_kafka_bootstrap_servers`
+- `SPRING_KAFKA_BOOTSTRAP_SERVERS`
 
 ## 1) Add DB secrets to Azure Key Vault
 
