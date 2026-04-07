@@ -21,7 +21,7 @@ spec:
         app: notification-service
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: booking-service
+      serviceAccountName: notification-service
       imagePullSecrets:
         - name: ghcr-secret
       volumes:
@@ -30,7 +30,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: booking-kv-secrets
+              secretProviderClass: notification-kv-secrets
       containers:
         - name: notification-service
           image: ghcr.io/tribunal-of-human-expansion/notification-service:latest
